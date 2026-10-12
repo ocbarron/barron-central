@@ -1,0 +1,267 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Barron Central Check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column of question cards, phone-first; chips for quick taps, a text box under each. */
+:root {
+  --bg: #f6f5fa;
+  --card: #ffffff;
+  --ink: #1f2140;
+  --muted: #5f6283;
+  --line: #dfdfeb;
+  --accent: #b8741a;
+  --accent-ink: #ffffff;
+  --chip: #eeeef6;
+  --chip-on: #2d3170;
+  --chip-on-ink: #ffffff;
+  --ok: #2f7a4e;
+  --warn: #9a5b00;
+  --display: "Young Serif", Georgia, "Times New Roman", serif;
+  --body: "Figtree", -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15162a; --card: #1e2038; --ink: #ecebf7; --muted: #a6a8c6; --line: #2f3252;
+  --accent: #e3a04a; --accent-ink: #1a1404; --chip: #2a2c4a; --chip-on: #c9cbf5; --chip-on-ink: #15162a;
+  --ok: #6fcf97; --warn: #f0b45e; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #15162a; --card: #1e2038; --ink: #ecebf7; --muted: #a6a8c6; --line: #2f3252;
+  --accent: #e3a04a; --accent-ink: #1a1404; --chip: #2a2c4a; --chip-on: #c9cbf5; --chip-on-ink: #15162a;
+  --ok: #6fcf97; --warn: #f0b45e; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 120px; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: 1.9rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 400; font-size: 1.15rem; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0; }
+.eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.section-label { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 10px; }
+details.known summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
+details.known summary::-webkit-details-marker { display: none; }
+details.known summary::after { content: "Show"; color: var(--accent); font-weight: 500; }
+details.known[open] summary::after { content: "Hide"; }
+.known ul { margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.known p { margin: 8px 0 0; }
+.q-head { display: flex; gap: 10px; align-items: baseline; }
+.q-num { font-family: var(--display); color: var(--accent); font-size: 1.05rem; flex: none; }
+.q-text { font-weight: 600; margin: 0; }
+.hint { color: var(--muted); font-size: .9rem; margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: .92rem; border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 8px 14px; cursor: pointer; min-height: 40px; }
+.chip[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-ink); border-color: var(--chip-on); }
+.chip:focus-visible, textarea:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sub { font-size: .85rem; color: var(--muted); font-weight: 600; }
+textarea { font: inherit; font-size: 16px; width: 100%; min-height: 84px; resize: vertical; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.btn { font: inherit; font-weight: 600; border: 0; border-radius: 12px; padding: 14px 18px; background: var(--accent); color: var(--accent-ink); cursor: pointer; min-height: 48px; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+.bar-in { max-width: 640px; margin: 0 auto; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.status { font-size: .88rem; color: var(--muted); }
+.status.ok { color: var(--ok); }
+.status.warn { color: var(--warn); }
+.progress { font-variant-numeric: tabular-nums; font-size: .88rem; color: var(--muted); }
+.done-note { display: none; }
+.done-note.show { display: block; }
+@media (prefers-reduced-motion: no-preference) { .chip { transition: background .15s, color .15s; } }
+</style>
+
+<main class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <span class="eyebrow">Barron Central · for Allie</span>
+    <h1>What should this take off your plate?</h1>
+    <p class="lede">About 15 minutes. Tap what fits, type as much or as little as you like. Answers save as you go, so you can stop and come back. Owen and Claude will read them. Skip anything you'd rather talk about in person.</p>
+  </header>
+
+  <details class="known card" id="known">
+    <summary>What we already know (tap to check it)</summary>
+    <p>Pulled from your planner doc, the annual calendar sheet, and Todoist.</p>
+    <ul>
+      <li><strong>You already have a full system:</strong> quarterly priorities, a theme for each weekday, a weekly routine (drop-offs, dinners, errands, the weekly meeting, cleaning), and a year by quarter with money dates, holidays, birthdays and a "plan next quarter" note.</li>
+      <li><strong>Keeping it up to date is the hard part.</strong> The planner doc stopped in March, and the annual sheet is almost empty after October.</li>
+      <li><strong>Todoist:</strong> you create most household tasks and assign about 30 to Owen. Many of his are overdue.</li>
+      <li><strong>Your own Q4 plan says it's time for:</strong> camp research, Lucy's birthday party, the Christmas gift plan, Thanksgiving, tipping the cleaners, PFML Q3 (10/31), and October–November birthdays.</li>
+      <li><strong>Big things in motion:</strong> the basement rebuild and insurance claim, Lucy's school-lunch support and 504 plan, James's appointments, estate and finance admin, getting ready for a house manager.</li>
+    </ul>
+  </details>
+
+  <div id="questions"></div>
+
+  <section class="card">
+    <h2>All done?</h2>
+    <p class="hint">Your answers are already saved. Tap below to let Owen know you're finished.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="finish" type="button">I'm done</button>
+      <button class="btn ghost" id="copy" type="button">Copy my answers</button>
+    </div>
+    <p class="hint done-note" id="doneNote">Thanks. Owen will see that you're finished.</p>
+    <textarea id="copyFallback" hidden readonly aria-label="Your answers as text"></textarea>
+  </section>
+</main>
+
+<div class="bar" role="status">
+  <div class="bar-in">
+    <span class="status" id="status">Loading…</span>
+    <span class="progress" id="progress"></span>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { id: "q00", section: "Check our facts", text: "Is anything in \"What we already know\" wrong or missing?", hint: "Open the box above to read it.", chips: ["Looks right", "Mostly right", "Some of it's wrong"] },
+  { id: "q01", section: "Your system", text: "The planner doc stopped in March and the annual sheet thins out after October. What happened?", chips: ["Too much upkeep", "Moved it to Todoist", "Life got busy", "It stopped being useful"], multi: true },
+  { id: "q02", section: "Your system", text: "Which parts of your system matter most to keep running?", hint: "Tap all that apply.", chips: ["Quarterly priorities", "Weekday themes", "Weekly routine", "Weekly meeting", "Year look-ahead", "Birthdays & gifts", "Cleaning rotation", "Seasonal bucket lists"], multi: true },
+  { id: "q03", section: "Your system", text: "What's taking up the most room in your head right now?", chips: [] },
+  { id: "q04", section: "Handing things to Owen", text: "When you assign something to Owen, what do you want to happen?", chips: ["Follow up with Owen and tell me when it's done", "Only tell me if it's stuck", "Follow up with Owen, don't tell me", "Nothing, I'll check myself"] },
+  { id: "q05", section: "Handing things to Owen", text: "How should it handle Owen's overdue tasks, so it helps and doesn't feel like monitoring, or like you nagging?", chips: ["Nudge Owen directly", "Weekly roundup for both of us", "Bring it up in the weekly meeting", "Leave it to us"], multi: true },
+  { id: "q06", section: "Handing things to Owen", text: "Should it draft the agenda for your weekly meeting (week ahead, overdue items, decisions, meals, next quarter)?", chips: ["Yes", "Maybe, show me one", "No"] },
+  { id: "q07", section: "The calendar", text: "You keep the family calendar. How should it work?", chips: ["Keep mine as the master; it suggests events for me to accept", "Start a shared family calendar it can add to", "Not sure yet"] },
+  { id: "q07b", section: "The calendar", text: "And the annual calendar sheet?", chips: ["Keep it, I like it", "Have the system generate it", "Don't need it"] },
+  { id: "q08", section: "The calendar", text: "What should Owen see, and where?", chips: [] },
+  { id: "q09", section: "How it talks to you", text: "Where should a morning brief and weekly plan reach you?", hint: "Tap all that apply.", chips: ["Email", "Phone notification", "Text message", "A page on my laptop", "Telegram"], multi: true },
+  { id: "q09b", section: "How it talks to you", text: "When, and how much?", chips: ["Before 7am", "7–8am", "Evening before", "Weekly plan only", "Daily is fine", "Only when something needs me"], multi: true },
+  { id: "q10", section: "Trust and privacy", text: "Health and money are a big share of what you carry. How should it handle them?", chips: ["Help with logistics, keep details out of briefs", "Details are fine", "Keep it out entirely", "Let's talk about it"] },
+  { id: "q11", section: "Trust and privacy", text: "Any rules for your email and texts? What would make you stop trusting it?", chips: [] },
+  { id: "q12", section: "First step", text: "Pick the first thing it should take off your mind.", chips: ["The Q4 look-ahead", "Birthdays & gifts", "Weekly meeting prep", "School & daycare emails (ParentSquare, Kindertales)", "Following up with Owen"] },
+];
+
+const state = {}; // id -> {chips: [], text: ""}
+const DRAFT_KEY = "bc-checkin-draft";
+const SB_URL = "https://elgnxinmndqwsewmjigd.supabase.co/rest/v1/checkin_entries";
+const SB_KEY = "sb_publishable_Nz9cwVTRLAiggSgTLUJ91Q_GdBBKJvU";
+let canWrite = true;
+async function sbInsert(row) {
+  const r = await fetch(SB_URL, { method: "POST", headers: { "apikey": SB_KEY, "Content-Type": "application/json", "Prefer": "return=minimal" }, body: JSON.stringify(row) });
+  if (!r.ok) throw new Error("save failed " + r.status);
+}
+const timers = {};
+const statusEl = document.getElementById("status");
+
+function setStatus(text, kind) { statusEl.textContent = text; statusEl.className = "status" + (kind ? " " + kind : ""); }
+function blank() { return { chips: [], text: "" }; }
+function answered(a) { return a && (a.chips.length > 0 || a.text.trim().length > 0); }
+function updateProgress() {
+  const n = QUESTIONS.filter(q => answered(state[q.id])).length;
+  document.getElementById("progress").textContent = n + " of " + QUESTIONS.length + " answered";
+}
+function loadDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "{}"); } catch (e) { return {}; } }
+function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch (e) {} }
+
+function render() {
+  const host = document.getElementById("questions");
+  host.innerHTML = "";
+  let lastSection = "";
+  QUESTIONS.forEach((q, i) => {
+    if (q.section !== lastSection) {
+      const lbl = document.createElement("div");
+      lbl.className = "section-label";
+      lbl.textContent = q.section;
+      host.appendChild(lbl);
+      lastSection = q.section;
+    }
+    const a = state[q.id] || (state[q.id] = blank());
+    const card = document.createElement("section");
+    card.className = "card";
+    card.style.marginTop = "10px";
+    const head = document.createElement("div");
+    head.className = "q-head";
+    const num = document.createElement("span"); num.className = "q-num"; num.textContent = String(i + 1);
+    const txt = document.createElement("p"); txt.className = "q-text"; txt.id = "lbl-" + q.id; txt.textContent = q.text;
+    head.append(num, txt);
+    card.appendChild(head);
+    if (q.hint) { const h = document.createElement("p"); h.className = "hint"; h.textContent = q.hint; card.appendChild(h); }
+    if (q.chips.length) {
+      const row = document.createElement("div"); row.className = "chips"; row.setAttribute("role", "group"); row.setAttribute("aria-labelledby", "lbl-" + q.id);
+      q.chips.forEach(c => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "chip"; b.textContent = c;
+        b.setAttribute("aria-pressed", a.chips.includes(c) ? "true" : "false");
+        b.addEventListener("click", () => {
+          const cur = state[q.id];
+          if (q.multi) {
+            cur.chips = cur.chips.includes(c) ? cur.chips.filter(x => x !== c) : cur.chips.concat(c);
+          } else {
+            cur.chips = cur.chips.includes(c) ? [] : [c];
+          }
+          row.querySelectorAll(".chip").forEach(el => el.setAttribute("aria-pressed", cur.chips.includes(el.textContent) ? "true" : "false"));
+          changed(q.id, 0);
+        });
+        row.appendChild(b);
+      });
+      card.appendChild(row);
+    }
+    const ta = document.createElement("textarea");
+    ta.id = "ta-" + q.id;
+    ta.placeholder = q.chips.length ? "Anything to add? (optional)" : "Type your answer";
+    ta.setAttribute("aria-labelledby", "lbl-" + q.id);
+    ta.value = a.text;
+    ta.addEventListener("input", () => { state[q.id].text = ta.value; changed(q.id, 900); });
+    ta.addEventListener("blur", () => flush(q.id));
+    card.appendChild(ta);
+    host.appendChild(card);
+  });
+  updateProgress();
+}
+
+function changed(id, delay) {
+  saveDraft();
+  updateProgress();
+  clearTimeout(timers[id]);
+  timers[id] = setTimeout(() => flush(id), delay);
+  setStatus("Saving…");
+}
+
+const writing = {};
+async function flush(id) {
+  clearTimeout(timers[id]);
+  if (!canWrite) return;
+  if (writing[id]) { timers[id] = setTimeout(() => flush(id), 400); return; }
+  writing[id] = true;
+  const a = state[id];
+  try {
+    await sbInsert({ question_id: id, chips: a.chips.slice(), text: a.text });
+    setStatus("Saved", "ok");
+  } catch (e) {
+    setStatus("Couldn't save just now. Your answers are kept on this phone; use 'Copy my answers' at the end if this keeps happening.", "warn");
+  } finally { writing[id] = false; }
+}
+
+document.getElementById("finish").addEventListener("click", async () => {
+  QUESTIONS.forEach(q => flush(q.id));
+  document.getElementById("doneNote").classList.add("show");
+  if (canWrite) {
+    try { await sbInsert({ question_id: "finished", chips: [], text: new Date().toISOString() }); }
+    catch (e) { document.getElementById("doneNote").textContent = "Saved here, but couldn't mark you as finished. Tell Owen you're done."; }
+  } else {
+    document.getElementById("doneNote").textContent = "This page couldn't save to Owen's copy. Tap 'Copy my answers' and text them to him.";
+  }
+});
+
+document.getElementById("copy").addEventListener("click", async () => {
+  const lines = QUESTIONS.map((q, i) => {
+    const a = state[q.id] || blank();
+    const parts = [];
+    if (a.chips.length) parts.push(a.chips.join("; "));
+    if (a.text.trim()) parts.push(a.text.trim());
+    return (i + 1) + ". " + q.text + "\n" + (parts.join(" | ") || "(skipped)");
+  });
+  const text = "Barron Central check-in, Allie's answers\n\n" + lines.join("\n\n");
+  const btn = document.getElementById("copy");
+  try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
+  catch (e) {
+    const fb = document.getElementById("copyFallback");
+    fb.hidden = false; fb.value = text; fb.style.minHeight = "240px"; fb.focus(); fb.select();
+    btn.textContent = "Select the text below and copy it";
+  }
+});
+
+// Start: render from the local draft, then light up the shared store.
+Object.assign(state, loadDraft());
+QUESTIONS.forEach(q => { if (!state[q.id]) state[q.id] = blank(); });
+render();
+
+setStatus("Answers save automatically", "ok");
+</script>
+
+</body></html>
