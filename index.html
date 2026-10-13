@@ -71,19 +71,18 @@ textarea { font: inherit; font-size: 16px; width: 100%; min-height: 84px; resize
   <header style="display:flex;flex-direction:column;gap:10px">
     <span class="eyebrow">Barron Central · for Allie</span>
     <h1>What should this take off your plate?</h1>
-    <p class="lede">About 15 minutes. Tap what fits, type as much or as little as you like. Answers save as you go, so you can stop and come back. Owen and Claude will read them. Skip anything you'd rather talk about in person.</p>
+    <p class="lede">About 10 minutes. Your life plan already answered the big questions, so these are only about how the household system should work. Tap what fits, type as much or as little as you like. Answers save as you go, so you can stop and come back. Owen and Claude will read them. Skip anything you'd rather talk about in person.</p>
   </header>
 
-  <details class="known card" id="known">
-    <summary>What we already know (tap to check it)</summary>
-    <p>Pulled from your planner doc, the annual calendar sheet, and Todoist.</p>
+  <details class="known card" id="known" open>
+    <summary>What we took from your life plan</summary>
     <ul>
-      <li><strong>You already have a full system:</strong> quarterly priorities, a theme for each weekday, a weekly routine (drop-offs, dinners, errands, the weekly meeting, cleaning), and a year by quarter with money dates, holidays, birthdays and a "plan next quarter" note.</li>
-      <li><strong>Keeping it up to date is the hard part.</strong> The planner doc stopped in March, and the annual sheet is almost empty after October.</li>
-      <li><strong>Todoist:</strong> you create most household tasks and assign about 30 to Owen. Many of his are overdue.</li>
-      <li><strong>Your own Q4 plan says it's time for:</strong> camp research, Lucy's birthday party, the Christmas gift plan, Thanksgiving, tipping the cleaners, PFML Q3 (10/31), and October–November birthdays.</li>
-      <li><strong>Big things in motion:</strong> the basement rebuild and insurance claim, Lucy's school-lunch support and 504 plan, James's appointments, estate and finance admin, getting ready for a house manager.</li>
+      <li><strong>The goal:</strong> you and Owen carry the household evenly. Owen owns whole areas, including noticing and planning them, so you aren't the one reminding.</li>
+      <li><strong>A weekly household check-in:</strong> you both review the calendar and Todoist, with a household assistant so you're equally on top of what's coming.</li>
+      <li><strong>A Family Traditions project in Todoist:</strong> yearly tasks 4–6 weeks before each tradition, birthday and seasonal gathering.</li>
+      <li><strong>Areas your plan already names for Owen:</strong> the kids' medical logistics (you stay lead advocate), house projects and insurance, the next-home project, and planning your 40th.</li>
     </ul>
+    <p><strong>From your planner doc and Todoist:</strong> you already run a full system (weekday themes, a weekly routine, a year by quarter). Keeping it up to date is the hard part. Your own Q4 list says it's time for camp research, Lucy's birthday party, the Christmas gift plan, Thanksgiving and tipping the cleaners.</p>
   </details>
 
   <div id="questions"></div>
@@ -109,25 +108,24 @@ textarea { font: inherit; font-size: 16px; width: 100%; min-height: 84px; resize
 
 <script>
 const QUESTIONS = [
-  { id: "q00", section: "Check our facts", text: "Is anything in \"What we already know\" wrong or missing?", hint: "Open the box above to read it.", chips: ["Looks right", "Mostly right", "Some of it's wrong"] },
-  { id: "q01", section: "Your system", text: "The planner doc stopped in March and the annual sheet thins out after October. What happened?", chips: ["Too much upkeep", "Moved it to Todoist", "Life got busy", "It stopped being useful"], multi: true },
-  { id: "q02", section: "Your system", text: "Which parts of your system matter most to keep running?", hint: "Tap all that apply.", chips: ["Quarterly priorities", "Weekday themes", "Weekly routine", "Weekly meeting", "Year look-ahead", "Birthdays & gifts", "Cleaning rotation", "Seasonal bucket lists"], multi: true },
-  { id: "q03", section: "Your system", text: "What's taking up the most room in your head right now?", chips: [] },
-  { id: "q04", section: "Handing things to Owen", text: "When you assign something to Owen, what do you want to happen?", chips: ["Follow up with Owen and tell me when it's done", "Only tell me if it's stuck", "Follow up with Owen, don't tell me", "Nothing, I'll check myself"] },
-  { id: "q05", section: "Handing things to Owen", text: "How should it handle Owen's overdue tasks, so it helps and doesn't feel like monitoring, or like you nagging?", chips: ["Nudge Owen directly", "Weekly roundup for both of us", "Bring it up in the weekly meeting", "Leave it to us"], multi: true },
-  { id: "q06", section: "Handing things to Owen", text: "Should it draft the agenda for your weekly meeting (week ahead, overdue items, decisions, meals, next quarter)?", chips: ["Yes", "Maybe, show me one", "No"] },
+  { id: "v2-facts", section: "Check our read", text: "Did we get your plan right?", hint: "It's in the box above.", chips: ["Yes", "Mostly", "Missing something important"] },
+  { id: "v2-areas", section: "Owen's areas", text: "Which areas should Owen own end to end first, including the noticing and planning?", hint: "Tap all that apply. This is your starting proposal; you'll settle it together.", chips: ["Kids' medical logistics", "House projects & insurance", "Next-home project", "Your 40th party", "Meal planning (not just cooking)", "His date-night turns", "Family traditions & trips"], multi: true },
+  { id: "v2-slip", section: "Owen's areas", text: "When something in Owen's area slips, who should hear about it?", chips: ["Owen first; it goes on the check-in agenda if it stays stuck", "Owen and me at the same time", "Me only if it's urgent", "Nobody; we'll catch it at the check-in"] },
+  { id: "v2-checkin", section: "Weekly check-in", text: "What should the system have ready for your weekly check-in?", hint: "Tap all that apply. Add the day and time you want it below.", chips: ["The week's calendar", "What's overdue and who owns it", "Decisions we need to make", "Meals for the week", "Traditions & birthdays 4–6 weeks out", "Progress on our 2027 goals"], multi: true },
+  { id: "v2-traditions", section: "Weekly check-in", text: "Should it build the Family Traditions project from the traditions list in your plan?", chips: ["Yes, draft it for me to review", "Yes, just build it", "Not yet"] },
+  { id: "v2-scope", section: "Your plan", text: "Which parts of your life plan should Barron Central help with?", hint: "Anything you don't tap stays out of it.", chips: ["Family & kids", "Home", "Partnership", "Friends & community", "Celebrations & travel", "My health", "My business"], multi: true },
   { id: "q07", section: "The calendar", text: "You keep the family calendar. How should it work?", chips: ["Keep mine as the master; it suggests events for me to accept", "Start a shared family calendar it can add to", "Not sure yet"] },
   { id: "q07b", section: "The calendar", text: "And the annual calendar sheet?", chips: ["Keep it, I like it", "Have the system generate it", "Don't need it"] },
-  { id: "q08", section: "The calendar", text: "What should Owen see, and where?", chips: [] },
-  { id: "q09", section: "How it talks to you", text: "Where should a morning brief and weekly plan reach you?", hint: "Tap all that apply.", chips: ["Email", "Phone notification", "Text message", "A page on my laptop", "Telegram"], multi: true },
+  { id: "q09", section: "How it talks to you", text: "Where should a morning brief and the weekly plan reach you?", hint: "Tap all that apply.", chips: ["Email", "Phone notification", "Text message", "A page on my laptop", "Telegram"], multi: true },
   { id: "q09b", section: "How it talks to you", text: "When, and how much?", chips: ["Before 7am", "7–8am", "Evening before", "Weekly plan only", "Daily is fine", "Only when something needs me"], multi: true },
-  { id: "q10", section: "Trust and privacy", text: "Health and money are a big share of what you carry. How should it handle them?", chips: ["Help with logistics, keep details out of briefs", "Details are fine", "Keep it out entirely", "Let's talk about it"] },
+  { id: "q10", section: "Trust and privacy", text: "How should it handle health and money?", chips: ["Help with logistics, keep details out of briefs", "Details are fine", "Keep it out entirely", "Let's talk about it"] },
   { id: "q11", section: "Trust and privacy", text: "Any rules for your email and texts? What would make you stop trusting it?", chips: [] },
-  { id: "q12", section: "First step", text: "Pick the first thing it should take off your mind.", chips: ["The Q4 look-ahead", "Birthdays & gifts", "Weekly meeting prep", "School & daycare emails (ParentSquare, Kindertales)", "Following up with Owen"] },
+  { id: "v2-margin", section: "The Margin", text: "Should we build this so you could use it with Margin clients later?", chips: ["Yes, design for that", "Maybe", "No, just for us"] },
+  { id: "v2-first", section: "First step", text: "Pick the first thing it should take off your mind.", chips: ["Build the Family Traditions project", "Prep our weekly check-in", "Kids' medical logistics for Owen", "The Q4 look-ahead", "School & daycare emails"] },
 ];
 
 const state = {}; // id -> {chips: [], text: ""}
-const DRAFT_KEY = "bc-checkin-draft";
+const DRAFT_KEY = "bc-checkin-draft-v2";
 const SB_URL = "https://elgnxinmndqwsewmjigd.supabase.co/rest/v1/checkin_entries";
 const SB_KEY = "sb_publishable_Nz9cwVTRLAiggSgTLUJ91Q_GdBBKJvU";
 let canWrite = true;
